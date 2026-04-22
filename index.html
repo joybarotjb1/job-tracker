@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>JobTrack – Application Tracker</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0d0f14;
+      --surface:   #161922;
+      --card:      #1e2230;
+      --border:    #2a2f40;
+      --accent:    #f0c040;
+      --accent2:   #e07040;
+      --text:      #e8eaf0;
+      --muted:     #7a7f96;
+      --green:     #4ade80;
+      --red:       #f87171;
+      --blue:      #60a5fa;
+      --purple:    #c084fc;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 0 0 60px;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: linear-gradient(135deg, #0d0f14 0%, #161922 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 28px 40px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+    }
+
+    .logo {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+    }
+
+    .logo-text {
+      font-family: 'DM Serif Display', serif;
+      font-size: 26px;
+      color: var(--accent);
+      letter-spacing: -0.5px;
+    }
+
+    .logo-sub {
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-left: 8px;
+    }
+
+    .header-stats {
+      display: flex;
+      gap: 32px;
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat-num {
+      font-family: 'DM Serif Display', serif;
+      font-size: 22px;
+      color: var(--accent);
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-top: 3px;
+    }
+
+    /* ── MAIN ── */
+    main { max-width: 1100px; margin: 0 auto; padding: 40px 24px 0; }
+
+    /* ── ADD FORM ── */
+    .form-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px 32px;
+      margin-bottom: 36px;
+      animation: slideDown 0.4s ease;
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .form-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 18px;
+      color: var(--accent);
+      margin-bottom: 20px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 140px;
+      gap: 14px;
+      align-items: end;
+    }
+
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+
+    label {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+    }
+
+    input, select {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      padding: 10px 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus, select:focus { border-color: var(--accent); }
+    input::placeholder { color: var(--muted); }
+    select option { background: var(--card); }
+
+    .btn-add {
+      background: var(--accent);
+      color: #0d0f14;
+      border: none;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 11px 20px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      white-space: nowrap;
+    }
+
+    .btn-add:hover { background: #ffd060; transform: translateY(-1px); }
+    .btn-add:active { transform: translateY(0); }
+
+    /* ── FILTERS ── */
+    .filters {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      color: var(--muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      padding: 7px 18px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .filter-btn.active { background: var(--accent); border-color: var(--accent); color: #0d0f14; font-weight: 600; }
+
+    /* ── TABLE ── */
+    .table-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    table { width: 100%; border-collapse: collapse; }
+
+    thead tr {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      padding: 14px 20px;
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      text-align: left;
+      font-weight: 500;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateX(-8px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: var(--card); }
+
+    td {
+      padding: 16px 20px;
+      font-size: 14px;
+      vertical-align: middle;
+    }
+
+    .company-cell { font-weight: 600; color: var(--text); }
+    .role-cell    { color: var(--muted); font-size: 13px; }
+    .date-cell    { color: var(--muted); font-size: 13px; }
+
+    /* ── STATUS BADGES ── */
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .badge-applied    { background: rgba(96,165,250,0.15); color: var(--blue); border: 1px solid rgba(96,165,250,0.3); }
+    .badge-interview  { background: rgba(192,132,252,0.15); color: var(--purple); border: 1px solid rgba(192,132,252,0.3); }
+    .badge-offer      { background: rgba(74,222,128,0.15); color: var(--green); border: 1px solid rgba(74,222,128,0.3); }
+    .badge-rejected   { background: rgba(248,113,113,0.15); color: var(--red); border: 1px solid rgba(248,113,113,0.3); }
+    .badge-ghosted    { background: rgba(122,127,150,0.15); color: var(--muted); border: 1px solid rgba(122,127,150,0.3); }
+
+    .status-select {
+      background: transparent;
+      border: none;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 4px 8px;
+      cursor: pointer;
+      border-radius: 20px;
+    }
+
+    /* ── DELETE BTN ── */
+    .btn-del {
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 16px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      transition: color 0.2s, background 0.2s;
+    }
+
+    .btn-del:hover { color: var(--red); background: rgba(248,113,113,0.1); }
+
+    /* ── EMPTY STATE ── */
+    .empty {
+      text-align: center;
+      padding: 64px 24px;
+    }
+
+    .empty-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.4; }
+
+    .empty-text {
+      font-family: 'DM Serif Display', serif;
+      font-size: 20px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .empty-sub { font-size: 13px; color: var(--muted); opacity: 0.6; }
+
+    /* ── PROGRESS BAR ── */
+    .pipeline {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .pipe-item {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      transition: transform 0.2s;
+    }
+
+    .pipe-item:hover { transform: translateY(-2px); }
+
+    .pipe-count {
+      font-family: 'DM Serif Display', serif;
+      font-size: 28px;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .pipe-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; }
+
+    .pipe-applied   .pipe-count { color: var(--blue); }
+    .pipe-interview .pipe-count { color: var(--purple); }
+    .pipe-offer     .pipe-count { color: var(--green); }
+    .pipe-rejected  .pipe-count { color: var(--red); }
+
+    @media (max-width: 768px) {
+      header { padding: 16px 20px; }
+      .header-stats { gap: 16px; }
+      .form-grid { grid-template-columns: 1fr 1fr; }
+      .pipeline { flex-wrap: wrap; }
+      .pipe-item { min-width: calc(50% - 6px); }
+      main { padding: 24px 16px 0; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <span class="logo-text">JobTrack</span>
+    <span class="logo-sub">by Joy Barot</span>
+  </div>
+  <div class="header-stats">
+    <div class="stat">
+      <div class="stat-num" id="totalCount">0</div>
+      <div class="stat-label">Total</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" id="activeCount">0</div>
+      <div class="stat-label">Active</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" id="offerCount">0</div>
+      <div class="stat-label">Offers</div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- ADD FORM -->
+  <div class="form-card">
+    <div class="form-title">+ Add New Application</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Company</label>
+        <input type="text" id="inCompany" placeholder="e.g. Infosys"/>
+      </div>
+      <div class="form-group">
+        <label>Role</label>
+        <input type="text" id="inRole" placeholder="e.g. Web Developer"/>
+      </div>
+      <div class="form-group">
+        <label>Date Applied</label>
+        <input type="date" id="inDate"/>
+      </div>
+      <div class="form-group">
+        <label>&nbsp;</label>
+        <button class="btn-add" onclick="addApplication()">Add →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PIPELINE STATS -->
+  <div class="pipeline">
+    <div class="pipe-item pipe-applied">
+      <div class="pipe-count" id="pApplied">0</div>
+      <div class="pipe-label">Applied</div>
+    </div>
+    <div class="pipe-item pipe-interview">
+      <div class="pipe-count" id="pInterview">0</div>
+      <div class="pipe-label">Interview</div>
+    </div>
+    <div class="pipe-item pipe-offer">
+      <div class="pipe-count" id="pOffer">0</div>
+      <div class="pipe-label">Offer</div>
+    </div>
+    <div class="pipe-item pipe-rejected">
+      <div class="pipe-count" id="pRejected">0</div>
+      <div class="pipe-label">Rejected</div>
+    </div>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="filters">
+    <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
+    <button class="filter-btn" onclick="setFilter('Applied', this)">Applied</button>
+    <button class="filter-btn" onclick="setFilter('Interview', this)">Interview</button>
+    <button class="filter-btn" onclick="setFilter('Offer', this)">Offer</button>
+    <button class="filter-btn" onclick="setFilter('Rejected', this)">Rejected</button>
+    <button class="filter-btn" onclick="setFilter('Ghosted', this)">Ghosted</button>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Company</th>
+          <th>Role</th>
+          <th>Date Applied</th>
+          <th>Status</th>
+          <th>Notes</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+    <div class="empty" id="emptyState">
+      <div class="empty-icon">📋</div>
+      <div class="empty-text">No applications yet</div>
+      <div class="empty-sub">Add your first job application above to get started</div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  let apps = JSON.parse(localStorage.getItem('jobtrack') || '[]');
+  let currentFilter = 'all';
+
+  // Set today's date as default
+  document.getElementById('inDate').valueAsDate = new Date();
+
+  function save() {
+    localStorage.setItem('jobtrack', JSON.stringify(apps));
+  }
+
+  function addApplication() {
+    const company = document.getElementById('inCompany').value.trim();
+    const role    = document.getElementById('inRole').value.trim();
+    const date    = document.getElementById('inDate').value;
+
+    if (!company || !role) {
+      document.getElementById('inCompany').focus();
+      return;
+    }
+
+    apps.unshift({ id: Date.now(), company, role, date, status: 'Applied', notes: '' });
+    save();
+    render();
+
+    document.getElementById('inCompany').value = '';
+    document.getElementById('inRole').value = '';
+    document.getElementById('inDate').valueAsDate = new Date();
+  }
+
+  function deleteApp(id) {
+    apps = apps.filter(a => a.id !== id);
+    save();
+    render();
+  }
+
+  function updateStatus(id, val) {
+    const a = apps.find(a => a.id === id);
+    if (a) { a.status = val; save(); render(); }
+  }
+
+  function updateNotes(id, val) {
+    const a = apps.find(a => a.id === id);
+    if (a) { a.notes = val; save(); }
+  }
+
+  function setFilter(f, btn) {
+    currentFilter = f;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    render();
+  }
+
+  function badgeClass(status) {
+    return { Applied: 'badge-applied', Interview: 'badge-interview', Offer: 'badge-offer', Rejected: 'badge-rejected', Ghosted: 'badge-ghosted' }[status] || 'badge-applied';
+  }
+
+  function render() {
+    const filtered = currentFilter === 'all' ? apps : apps.filter(a => a.status === currentFilter);
+    const tbody = document.getElementById('tableBody');
+    const empty = document.getElementById('emptyState');
+
+    // Update header stats
+    document.getElementById('totalCount').textContent = apps.length;
+    document.getElementById('activeCount').textContent = apps.filter(a => ['Applied','Interview'].includes(a.status)).length;
+    document.getElementById('offerCount').textContent  = apps.filter(a => a.status === 'Offer').length;
+
+    // Pipeline counts
+    ['Applied','Interview','Offer','Rejected'].forEach(s => {
+      document.getElementById('p' + s).textContent = apps.filter(a => a.status === s).length;
+    });
+
+    if (filtered.length === 0) {
+      tbody.innerHTML = '';
+      empty.style.display = 'block';
+      return;
+    }
+
+    empty.style.display = 'none';
+    tbody.innerHTML = filtered.map((a, i) => `
+      <tr>
+        <td style="color:var(--muted);font-size:13px">${i + 1}</td>
+        <td class="company-cell">${a.company}</td>
+        <td class="role-cell">${a.role}</td>
+        <td class="date-cell">${a.date ? new Date(a.date).toLocaleDateString('en-IN', {day:'2-digit',month:'short',year:'numeric'}) : '—'}</td>
+        <td>
+          <select class="status-select badge ${badgeClass(a.status)}" onchange="updateStatus(${a.id}, this.value)">
+            ${['Applied','Interview','Offer','Rejected','Ghosted'].map(s =>
+              `<option value="${s}" ${a.status===s?'selected':''}>${s}</option>`
+            ).join('')}
+          </select>
+        </td>
+        <td>
+          <input
+            type="text"
+            value="${a.notes}"
+            placeholder="Add notes…"
+            style="background:transparent;border:none;color:var(--muted);font-size:13px;width:160px;outline:none;padding:0;"
+            onchange="updateNotes(${a.id}, this.value)"
+          />
+        </td>
+        <td><button class="btn-del" onclick="deleteApp(${a.id})">✕</button></td>
+      </tr>
+    `).join('');
+  }
+
+  // Allow Enter key to add
+  document.getElementById('inRole').addEventListener('keydown', e => { if (e.key === 'Enter') addApplication(); });
+
+  // Seed with sample data if empty
+  if (apps.length === 0) {
+    apps = [
+      { id: 1, company: 'Infosys', role: 'Junior Web Developer', date: '2025-04-10', status: 'Applied', notes: 'Applied via LinkedIn' },
+      { id: 2, company: 'Wipro', role: 'Associate Developer', date: '2025-04-12', status: 'Interview', notes: 'Round 1 scheduled' },
+      { id: 3, company: 'TCS', role: 'IT Analyst', date: '2025-04-08', status: 'Rejected', notes: '' },
+    ];
+    save();
+  }
+
+  render();
+</script>
+</body>
+</html>
